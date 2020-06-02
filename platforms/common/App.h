@@ -5,13 +5,13 @@
 
 namespace Tangram {
 
-namespace GlfwApp {
+namespace App {
 
 void create(std::unique_ptr<Platform> platform, int width, int height);
 void setScene(const std::string& _path, const std::string& _yaml);
 void loadSceneFile(bool setPosition = false, std::vector<SceneUpdate> updates = {});
 void parseArgs(int argc, char* argv[]);
-void setWireframeMode(bool state);
+
 void run();
 void stop(int);
 void destroy();
@@ -19,7 +19,12 @@ void destroy();
 extern std::string sceneFile;
 extern std::string sceneYaml;
 extern std::string apiKey;
+extern const char* apiKeyScenePath;
+extern bool load_async;
+extern std::vector<SceneUpdate> sceneUpdates;
 
-} // namespace GlfwApp
+extern Tangram::Map* map;
+
+} // namespace App
 
 } // namespace Tangram

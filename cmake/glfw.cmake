@@ -1,5 +1,6 @@
 # Build GLFW.
 if(TANGRAM_USE_SYSTEM_GLFW_LIBS)
+  message(STATUS "Use system glfw")
   include(FindPkgConfig)
   pkg_check_modules(GLFW REQUIRED glfw3)
 else()
@@ -9,6 +10,7 @@ else()
   set(GLFW_BUILD_DOCS OFF CACHE BOOL "Build the GLFW documentation")
   set(GLFW_INSTALL OFF CACHE BOOL "Generate installation target")
   add_subdirectory(platforms/common/glfw)
+  message(STATUS "add_subdirectory glfw")
   if(APPLE)
     # Turn off noisy warnings from clang on macOS.
     target_compile_options(glfw PRIVATE "-Wno-deprecated-declarations")

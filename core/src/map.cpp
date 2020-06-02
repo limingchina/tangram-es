@@ -890,7 +890,7 @@ void Map::setupGL() {
     Hardware::loadExtensions();
     Hardware::loadCapabilities();
 
-    // Hardware::printAvailableExtensions();
+    Hardware::printAvailableExtensions();
 }
 
 void Map::useCachedGlState(bool _useCache) {

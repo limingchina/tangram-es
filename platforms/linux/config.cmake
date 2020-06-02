@@ -22,7 +22,23 @@ add_definitions(-DTANGRAM_LINUX)
 set(OpenGL_GL_PREFERENCE GLVND)
 find_package(OpenGL REQUIRED)
 
-include(cmake/glfw.cmake)
+set(APP_FRAMEWORK "GLFW" CACHE STRING "Application Framework. GLFW or SDL")
+set(APP_FRAMEWORK "SDL")
+if(APP_FRAMEWORK STREQUAL "GLFW")
+  message(STATUS "Use GLFW application framework")
+  include(cmake/glfw.cmake)
+  set(APP_FRAMEWORK_SOURCES platforms/common/imgui_impl_glfw.cpp
+      platforms/common/imgui_impl_opengl3.cpp
+      platforms/common/glfwApp.cpp)
+  set(APP_FRAMEWORK_LIBS glfw imgui)
+  add_subdirectory(platforms/common/imgui)
+  set(APP_FRAMEWORK_DEFINE "USE_GLFW")
+else()
+  message(STATUS "Use SDL application framework")
+  set(APP_FRAMEWORK_SOURCES platforms/common/SDLApp.cpp)
+  set(APP_FRAMEWORK_LIBS SDL2)
+  set(APP_FRAMEWORK_DEFINE "USE_SDL")
+endif()
 
 # System font config
 include(FindPkgConfig)
@@ -33,15 +49,12 @@ find_package(CURL REQUIRED)
 add_executable(tangram
   platforms/linux/src/linuxPlatform.cpp
   platforms/linux/src/main.cpp
+  platforms/common/App.cpp
   platforms/common/platform_gl.cpp
-  platforms/common/imgui_impl_glfw.cpp
-  platforms/common/imgui_impl_opengl3.cpp
   platforms/common/urlClient.cpp
   platforms/common/linuxSystemFontHelper.cpp
-  platforms/common/glfwApp.cpp
+  ${APP_FRAMEWORK_SOURCES}
 )
-
-add_subdirectory(platforms/common/imgui)
 
 target_include_directories(tangram
   PRIVATE
@@ -49,12 +62,11 @@ target_include_directories(tangram
   ${FONTCONFIG_INCLUDE_DIRS}
 )
 
+target_compile_definitions(tangram PRIVATE ${APP_FRAMEWORK_DEFINE})
 target_link_libraries(tangram
   PRIVATE
   tangram-core
-  glfw
-  imgui
-  ${GLFW_LIBRARIES}
+  ${APP_FRAMEWORK_LIBS}
   ${OPENGL_LIBRARIES}
   ${FONTCONFIG_LDFLAGS}
   ${CURL_LIBRARIES}

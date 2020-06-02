@@ -37,10 +37,6 @@ constexpr double scroll_span_multiplier = 0.05; // scaling for zoom and rotation
 constexpr double scroll_distance_multiplier = 5.0; // scaling for shove
 constexpr double single_tap_time = 0.25; //seconds (to avoid a long press being considered as a tap)
 
-std::string sceneFile = "scene.yaml";
-std::string sceneYaml;
-std::string apiKey;
-
 bool markerUseStylingPath = true;
 std::string markerStylingPath = "layers.touch.point.draw.icons";
 std::string markerStylingString = R"RAW(
@@ -375,12 +371,7 @@ void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
         if (add_point_marker_on_click) {
             auto marker = map->markerAdd();
             map->markerSetPoint(marker, location);
-            if (markerUseStylingPath) {
-                map->markerSetStylingFromPath(marker, markerStylingPath.c_str());
-            } else {
-                map->markerSetStylingFromString(marker, markerStylingString.c_str());
-            }
-
+            map->markerSetStylingFromPath(marker, markerStylingPath.c_str());
             point_markers.push_back(marker);
         }
 
@@ -611,10 +602,6 @@ void showSceneGUI() {
 void showMarkerGUI() {
     if (ImGui::CollapsingHeader("Markers")) {
         ImGui::Checkbox("Add point markers on click", &add_point_marker_on_click);
-        if(ImGui::RadioButton("Use Styling Path", markerUseStylingPath)) { markerUseStylingPath = true; }
-        ImGui::InputText("Path", &markerStylingPath);
-        if(ImGui::RadioButton("Use Styling String", !markerUseStylingPath)) { markerUseStylingPath = false; }
-        ImGui::InputTextMultiline("String", &markerStylingString);
         if (ImGui::Button("Clear point markers")) {
             for (const auto marker : point_markers) {
                 map->markerRemove(marker);

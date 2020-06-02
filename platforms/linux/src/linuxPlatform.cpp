@@ -11,7 +11,11 @@
 #include <sys/syscall.h>
 
 #if defined(TANGRAM_LINUX)
+#if defined(USE_GLFW)
 #include <GLFW/glfw3.h>
+#else
+#include <SDL2/SDL.h>
+#endif
 #elif defined(TANGRAM_RPI)
 #include "context.h"
 #endif
@@ -46,7 +50,14 @@ void LinuxPlatform::shutdown() {
 
 void LinuxPlatform::requestRender() const {
     if (m_shutdown) { return; }
+#if defined(USE_GLFW)
     glfwPostEmptyEvent();
+#else
+    SDL_Event sdlEvent;
+    sdlEvent.type = SDL_WINDOWEVENT;
+    sdlEvent.window.event = SDL_WINDOWEVENT_EXPOSED;
+    SDL_PushEvent(&sdlEvent);
+#endif
 }
 
 std::vector<FontSourceHandle> LinuxPlatform::systemFontFallbacksHandle() const {

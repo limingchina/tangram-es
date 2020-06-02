@@ -1,4 +1,4 @@
-#include "glfwApp.h"
+#include "App.h"
 #include "linuxPlatform.h"
 #include "log.h"
 #include "map.h"
@@ -13,10 +13,10 @@ using namespace Tangram;
 int main(int argc, char* argv[]) {
 
     // Create the windowed app.
-    GlfwApp::create(std::make_unique<LinuxPlatform>(), 1024, 768);
+    App::create(std::make_unique<LinuxPlatform>(), 1024, 768);
 
-    GlfwApp::sceneFile = "res/scene.yaml";
-    GlfwApp::parseArgs(argc, argv);
+    App::sceneFile = "res/scene.yaml";
+    App::parseArgs(argc, argv);
 
     // Resolve the input path against the current directory.
     Url baseUrl("file:///");
@@ -27,16 +27,16 @@ int main(int argc, char* argv[]) {
     
     LOG("Base URL: %s", baseUrl.string().c_str());
     
-    Url sceneUrl = Url(GlfwApp::sceneFile).resolved(baseUrl);
-    GlfwApp::sceneFile = sceneUrl.string();
+    Url sceneUrl = Url(App::sceneFile).resolved(baseUrl);
+    App::sceneFile = sceneUrl.string();
 
     // Give it a chance to shutdown cleanly on CTRL-C
-    signal(SIGINT, &GlfwApp::stop);
+    signal(SIGINT, &App::stop);
 
     // Loop until the user closes the window
-    GlfwApp::run();
+    App::run();
 
     // Clean up.
-    GlfwApp::destroy();
+    App::destroy();
 
 }
