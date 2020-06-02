@@ -17,7 +17,7 @@ void create(std::unique_ptr<Platform> p, int w, int h) {
 
     sdlWindow =
         SDL_CreateWindow("test", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-            w, h, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+            w, h, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
 
     SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
@@ -50,6 +50,7 @@ void create(std::unique_ptr<Platform> p, int w, int h) {
     // Setup tangram
     if (!map) {
         map = new Tangram::Map(std::move(p));
+        map->resize(w,h);
     }
 
     // Setup graphics
@@ -66,7 +67,85 @@ void run() {
     {
         while(SDL_PollEvent(&e))
         {
-            if(e.type == SDL_QUIT) std::terminate();
+            if(e.type == SDL_QUIT)
+            {
+                destroy();
+                stop(1);
+            }
+            else if(e.type == SDL_WINDOWEVENT)
+            {
+                switch(e.window.event)
+                {
+                case SDL_WINDOWEVENT_SIZE_CHANGED:
+                case SDL_WINDOWEVENT_RESIZED:
+                    map->resize(e.window.data1,e.window.data2);
+                    break;
+                default:
+                    break;
+                }
+            }
+            else if( e.type == SDL_KEYDOWN )
+            {
+                int w=0,h=0;
+                double lat,lng;
+                SDL_GetWindowSize(sdlWindow,&w,&h);
+
+                const char* name = SDL_GetKeyName(e.key.keysym.sym);
+                switch (name[0]) {
+                case 'Z':
+                    map->setZoom(map->getZoom()+0.5);
+                    break;
+                case 'X':
+                    map->setZoom(map->getZoom()-0.5);
+                    break;
+                case 'A':
+                {
+                    map->screenPositionToLngLat(w/2-10,h/2,&lng,&lat);
+                    map->setPosition(lng,lat);
+                    break;
+                }
+                case 'D':
+                {
+                    map->screenPositionToLngLat(w/2+10,h/2,&lng,&lat);
+                    map->setPosition(lng,lat);
+                    break;
+                }
+                case 'W':
+                {
+                    map->screenPositionToLngLat(w/2,h/2-10,&lng,&lat);
+                    map->setPosition(lng,lat);
+                    break;
+                }
+                case 'S':
+                {
+                    map->screenPositionToLngLat(w/2,h/2+10,&lng,&lat);
+                    map->setPosition(lng,lat);
+                    break;
+                }
+                case 'J':
+                {
+                    map->setTilt(map->getTilt()-5*0.01745329251994329576);
+                    break;
+                }
+                case 'L':
+                {
+                    map->setTilt(map->getTilt()+5*0.01745329251994329576);
+                    break;
+                }
+                case 'K':
+                {
+                    map->setRotation(map->getRotation()-5*0.01745329251994329576);
+                    break;
+                }
+                case 'I':
+                {
+                    map->setRotation(map->getRotation()+5*0.01745329251994329576);
+                    break;
+                }
+                default:
+                    break;
+                }
+            }
         }
 
         // Render
